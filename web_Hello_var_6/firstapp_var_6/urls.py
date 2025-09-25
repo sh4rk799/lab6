@@ -5,9 +5,7 @@ from . import views  # ← Импорт views из текущей папки
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('about/', views.about, name='about'),  # ← Добавьте эту строку
-    path('services/', views.services, name='services'),
-    path('contact/', views.contact, name='contact'),
-    path('news/', views.news, name='news'),
-    path('portfolio/', views.portfolio, name='portfolio'),
-]
+    path('warehouse/', views.warehouse, name='warehouse'),  # ← Добавьте эту строку
+    path('shops/', views.shops, name='shops'),
+    path('storekeeper/', views.storekeeper, name='storekeeper'),
+    path('table/', views.table, name='table'),]

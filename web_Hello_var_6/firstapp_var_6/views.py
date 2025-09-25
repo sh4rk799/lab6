@@ -3,17 +3,14 @@ from django.shortcuts import render
 def index(request):
     return render(request, 'index.html')
 
-def about(request):
-    return render(request, 'about.html')
+def warehouse(request):
+    return render(request, 'warehouse.html')
 
-def services(request):
-    return render(request, 'services.html')
+def shops(request):
+    return render(request, 'shops.html')
 
-def contact(request):
-    return render(request, 'contact.html')
+def storekeeper(request):
+    return render(request, 'storekeeper.html')
 
-def news(request):
-    return render(request, 'news.html')
-
-def portfolio(request):
-    return render(request, 'portfolio.html')
+def table(request):
+    return render(request, 'table.html')
