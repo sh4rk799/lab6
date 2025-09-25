@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    {% include 'navigator.html' %}
+
+    <main>
+        {% block content %}
+        <!-- Контент страницы -->
+        {% endblock %}
+    </main>
+</body>
+</html>
