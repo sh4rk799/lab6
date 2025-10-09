@@ -1,39 +1,128 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+import csv
 
+def read_file(filename):
+    data = []
+    try:
+        # Простой относительный путь
+        with open(f'templates/tablica/{filename}', 'r', encoding='utf-8') as file:
+            for line in file:
+                if line.strip():
+                    data.append(line.strip().split(';'))
+    except:
+        pass
+    return data
+
+def read_csv_file():
+    data = []
+    try:
+        # Простой относительный путь
+        with open('templates/tablica/movements.csv', 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                data.append(row)
+    except:
+        pass
+    return data
+
+
+# Все остальные функции остаются БЕЗ ИЗМЕНЕНИЙ
 def index(request):
-    return render(request, 'index.html')
+    products = read_file('products.txt')
+    movements = read_csv_file()
+
+    context = {
+        'page_title': 'Главная страница',
+        'total_products': len(products),
+        'total_movements': len(movements),
+        'last_movement': movements[-1] if movements else {'Товар': 'нет данных', 'Магазин': 'нет данных'}
+    }
+    return render(request, 'index.html', context)
+
 
 def warehouse(request):
-    return render(request, 'warehouse.html')
+    products = read_file('products.txt')
+    movements = read_csv_file()
+
+    simple_data = {
+        'total_count': len(products),
+        'warehouse_name': 'Основной склад',
+        'is_active': True,
+        'area': 500,
+        'total_movements': len(movements)
+    }
+
+    complex_data = {
+        'products_list': products,
+        'categories': list(set([p[3] for p in products])) if products else [],
+        'movements_list': movements,
+    }
+
+    context = {
+        'simple': simple_data,
+        'complex': complex_data,
+        'page_title': 'Склад товаров'
+    }
+    return render(request, 'warehouse.html', context)
+
 
 def shops(request):
-    return render(request, 'shops.html')
+    """Страница магазинов"""
+    stores = read_file('stores.txt')
+    movements = read_csv_file()
 
-def storekeeper(request):
-    return render(request, 'storekeeper.html')
+    store_stats = {}
+    for movement in movements:
+        store = movement['Магазин']
+        quantity = int(movement['Количество'])
+        if store in store_stats:
+            store_stats[store] += quantity
+        else:
+            store_stats[store] = quantity
 
-def table(request):
-    return render(request, 'table.html')
+    context = {
+        'simple': {
+            'stores_count': len(stores),
+            'city': 'Москва'
+        },
+        'complex': {
+            'stores_list': stores,
+            'store_stats': store_stats,
+        },
+        'page_title': 'Магазины-получатели'
+    }
+    return render(request, 'shops.html', context)
 
-def product1(request):
-    return render(request, 'products/product1.html')
 
-def product2(request):
-    return render(request, 'products/product2.html')
+def movements(request):
+    """Страница перемещений товаров"""
+    movements_data = read_csv_file()
 
-def product3(request):
-    return render(request, 'products/product3.html')
+    context = {
+        'movements_list': movements_data,
+        'page_title': 'Перемещения товаров',
+        'total_count': len(movements_data)
+    }
+    return render(request, 'movements.html', context)
 
-# Функции для магазинов
-def magnit(request):
-    return render(request, 'shops/magnit.html')
 
-def dns(request):
-    return render(request, 'shops/dns.html')
+def workers(request):
+    """Страница кладовщиков"""
+    workers_data = read_file('workers.txt')
+    movements = read_csv_file()
 
-def pyaterochka(request):
-    return render(request, 'shops/pyaterochka.html')
+    worker_stats = {}
+    for movement in movements:
+        worker = movement['Кладовщик']
+        quantity = int(movement['Количество'])
+        if worker in worker_stats:
+            worker_stats[worker] += quantity
+        else:
+            worker_stats[worker] = quantity
 
-def mvideo(request):
-    return render(request, 'shops/mvideo.html')
+    context = {
+        'workers_list': workers_data,
+        'worker_stats': worker_stats,
+        'page_title': 'Кладовщики'
+    }
+    return render(request, 'workers.html', context)

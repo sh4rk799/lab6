@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <h1>🚚 {{ page_title }}</h1>
+
+    <div class="stats">
+        <h3>📈 Статистика (данные из CSV файла):</h3>
+        <p><strong>Всего перемещений:</strong> {{ total_count }}</p>
+    </div>
+
+    <h3>📋 История перемещений товаров:</h3>
+    <table>
+        <tr>
+            <th>Товар</th>
+            <th>Магазин</th>
+            <th>Количество</th>
+            <th>Дата</th>
+            <th>Кладовщик</th>
+        </tr>
+        {% for movement in movements_list %}
+        <tr>
+            <td>{{ movement.Товар }}</td>
+            <td>{{ movement.Магазин }}</td>
+            <td>{{ movement.Количество }} шт.</td>
+            <td>{{ movement.Дата }}</td>
+            <td>{{ movement.Кладовщик }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

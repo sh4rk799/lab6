@@ -1,12 +1,61 @@
-{% extends 'index.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Склад{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<h1>Склад товаров</h1>
-<div>
-    <li><a href="/warehouse/product1/">Товар 1</a></li>
-    <li><a href="/warehouse/product2/">Товар 2</a></li>
-    <li><a href="/warehouse/product3/">Товар 3</a></li>
-</div>
+    <h1>📦 {{ page_title }}</h1>
+
+    <div class="stats">
+        <h3>📊 Простые данные:</h3>
+        <p><strong>Количество товаров:</strong> {{ simple.total_count }} (число)</p>
+        <p><strong>Название склада:</strong> {{ simple.warehouse_name }} (строка)</p>
+        <p><strong>Склад активен:</strong> {{ simple.is_active }} (логическое значение)</p>
+        <p><strong>Площадь:</strong> {{ simple.area }} м² (число)</p>
+        <p><strong>Всего перемещений:</strong> {{ simple.total_movements }} (число)</p>
+    </div>
+
+    <div class="stats">
+        <h3>📂 Категории товаров (список):</h3>
+        <ul>
+            {% for category in complex.categories %}
+            <li>{{ category }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <h3>📋 Товары на складе (таблица из TXT файла):</h3>
+    <table>
+        <tr>
+            <th>Товар</th>
+            <th>Цена</th>
+            <th>Количество</th>
+            <th>Категория</th>
+        </tr>
+        {% for product in complex.products_list %}
+        <tr>
+            <td>{{ product.0 }}</td>
+            <td>{{ product.1 }} руб.</td>
+            <td>{{ product.2 }} шт.</td>
+            <td>{{ product.3 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>🚚 Последние перемещения (данные из CSV):</h3>
+    <table>
+        <tr>
+            <th>Товар</th>
+            <th>Магазин</th>
+            <th>Количество</th>
+            <th>Дата</th>
+        </tr>
+        {% for movement in complex.movements_list|slice:":5" %}
+        <tr>
+            <td>{{ movement.Товар }}</td>
+            <td>{{ movement.Магазин }}</td>
+            <td>{{ movement.Количество }} шт.</td>
+            <td>{{ movement.Дата }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

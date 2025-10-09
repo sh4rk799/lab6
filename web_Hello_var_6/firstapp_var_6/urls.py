@@ -1,22 +1,10 @@
-from django.contrib import admin
-from django.urls import path, include
-from . import views  # ← Импорт views из текущей папки
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('warehouse/', views.warehouse, name='warehouse'),  # ← Добавьте эту строку
+    path('warehouse/', views.warehouse, name='warehouse'),
     path('shops/', views.shops, name='shops'),
-    path('storekeeper/', views.storekeeper, name='storekeeper'),
-    path('table/', views.table, name='table'),
-    # Товары
-    path('warehouse/product1/', views.product1),
-    path('warehouse/product2/', views.product2),
-    path('warehouse/product3/', views.product3),
-
-    # Магазины
-    path('shops/magnit/', views.magnit),
-    path('shops/dns/', views.dns),
-    path('shops/pyaterochka/', views.pyaterochka),
-    path('shops/mvideo/', views.mvideo),
-    ]
+    path('workers/', views.workers, name='workers'),
+    path('movements/', views.movements, name='movements'),
+]
