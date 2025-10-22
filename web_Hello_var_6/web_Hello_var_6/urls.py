@@ -17,7 +17,6 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from . import views  # ← Импорт views из текущей папки
 
 urlpatterns = [
     path('admin/', admin.site.urls),

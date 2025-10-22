@@ -13,6 +13,7 @@ def read_file(filename):
         pass
     return data
 
+
 def read_csv_file():
     data = []
     try:
@@ -65,7 +66,6 @@ def warehouse(request):
 
 
 def shops(request):
-    """Страница магазинов"""
     stores = read_file('stores.txt')
     movements = read_csv_file()
 
@@ -93,7 +93,6 @@ def shops(request):
 
 
 def movements(request):
-    """Страница перемещений товаров"""
     movements_data = read_csv_file()
 
     context = {
@@ -105,7 +104,6 @@ def movements(request):
 
 
 def workers(request):
-    """Страница кладовщиков"""
     workers_data = read_file('workers.txt')
     movements = read_csv_file()
 
@@ -139,10 +137,18 @@ def add_product(request):
             with open('templates/tablica/products.txt', 'a', encoding='utf-8') as f:
                 f.write(f"\n{name};{price};{quantity};{category}")
 
-            return render(request, 'success.html', {
-                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., {category}'
-            })
+            context = {
+                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., {category}',
+                'page_title' : 'Успех'
+            }
+
+            return render(request, 'success.html', context)
     else:
         form = ProductForm()
 
-    return render(request, 'add_product.html', {'form': form})
+    context = {
+        'form' : form,
+        'page_title' : 'Добавить товар'
+    }
+
+    return render(request, 'add_product.html', context)
