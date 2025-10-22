@@ -1,10 +1,10 @@
 from django.shortcuts import render
+from .forms import ProductForm
 import csv
 
 def read_file(filename):
     data = []
     try:
-        # Простой относительный путь
         with open(f'templates/tablica/{filename}', 'r', encoding='utf-8') as file:
             for line in file:
                 if line.strip():
@@ -16,7 +16,6 @@ def read_file(filename):
 def read_csv_file():
     data = []
     try:
-        # Простой относительный путь
         with open('templates/tablica/movements.csv', 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
             for row in reader:
@@ -26,7 +25,6 @@ def read_csv_file():
     return data
 
 
-# Все остальные функции остаются БЕЗ ИЗМЕНЕНИЙ
 def index(request):
     products = read_file('products.txt')
     movements = read_csv_file()
@@ -126,3 +124,25 @@ def workers(request):
         'page_title': 'Кладовщики'
     }
     return render(request, 'workers.html', context)
+
+
+def add_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            price = form.cleaned_data['price']
+            quantity = form.cleaned_data['quantity']
+            category = form.cleaned_data['category']
+
+            # Записываем в файл
+            with open('templates/tablica/products.txt', 'a', encoding='utf-8') as f:
+                f.write(f"\n{name};{price};{quantity};{category}")
+
+            return render(request, 'success.html', {
+                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., {category}'
+            })
+    else:
+        form = ProductForm()
+
+    return render(request, 'add_product.html', {'form': form})

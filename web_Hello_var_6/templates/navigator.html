@@ -1,9 +1,10 @@
 <nav>
     <ul>
-        <li><a href="/">🏠 Главная</a></li>
-        <li><a href="/warehouse/">📦 Склад</a></li>
-        <li><a href="/shops/">🏪 Магазины</a></li>
-        <li><a href="/workers/">👥 Кладовщики</a></li>
-        <li><a href="/movements/">🚚 Перемещения</a></li>
+        <li><a href="{% url 'index' %}">🏠 Главная</a></li>
+        <li><a href="{% url 'warehouse' %}">📦 Склад</a></li>
+        <li><a href="{% url 'shops' %}">🏪 Магазины</a></li>
+        <li><a href="{% url 'workers' %}">👥 Кладовщики</a></li>
+        <li><a href="{% url 'movements' %}">🚚 Перемещения</a></li>
+        <li><a href="{% url 'add_product' %}">➕ Товар</a></li>
     </ul>
 </nav>
