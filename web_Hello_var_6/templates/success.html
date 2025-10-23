@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ page_title }}{% endblock %}
+{% block title %}Успех{% endblock %}
 
 {% block content %}
     <h1>✅ Успешно!</h1>
-    
+
     <div class="stats" style="background: #d4edda; border-color: #c3e6cb;">
         <p>{{ message }}</p>
     </div>
-    
+
     <div style="margin-top: 20px;">
         <a href="/add-product/" style="margin-right: 15px;">➕ Добавить еще товар</a>
+        <a href="/add-movement/" style="margin-right: 15px;">📋 Новое перемещение</a>
         <a href="/">🏠 На главную</a>
     </div>
 {% endblock %}

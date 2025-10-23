@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Перемещение товара{% endblock %}
+
+{% block content %}
+    <h1>🚚 Перемещение товара</h1>
+    
+    <div class="stats">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 15px;">
+                <label>{{ form.product.label }}</label>
+                {{ form.product }}
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>{{ form.quantity.label }}</label>
+                {{ form.quantity }}
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>{{ form.date.label }}</label>
+                {{ form.date }}
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>{{ form.stores.label }}</label>
+                <div>
+                    {% for radio in form.stores %}
+                        <div>
+                            <label>
+                                {{ radio.tag }} {{ radio.choice_label }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label>{{ form.worker.label }}</label>
+                <div>
+                    {% for radio in form.worker %}
+                        <div>{{ radio }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <button type="submit">Переместить товар</button>
+        </form>
+    </div>
+{% endblock %}

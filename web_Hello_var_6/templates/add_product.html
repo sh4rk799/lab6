@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ page_title }}{% endblock %}
+{% block title %}Добавить товар{% endblock %}
 
 {% block content %}
     <h1>📦 Добавить товар</h1>
-    
+
     <div class="stats">
         <form method="post">
             {% csrf_token %}
-            
+
             <div style="margin-bottom: 15px;">
                 <label>{{ form.name.label }}</label>
                 {{ form.name }}
             </div>
-            
+
             <div style="margin-bottom: 15px;">
                 <label>{{ form.price.label }}</label>
                 {{ form.price }}

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import ProductForm
+from .forms import ProductForm, MovementForm
 import csv
 
 def read_file(filename):
@@ -125,30 +125,78 @@ def workers(request):
 
 
 def add_product(request):
+    # Заполняем категории для формы
+    category_choices = [
+        ('Электроника', 'Электроника'),
+        ('Бытовая техника', 'Бытовая техника'),
+        ('Офисная техника', 'Офисная техника'),
+    ]
+
     if request.method == 'POST':
         form = ProductForm(request.POST)
+        form.fields['category'].choices = category_choices
+
         if form.is_valid():
             name = form.cleaned_data['name']
             price = form.cleaned_data['price']
             quantity = form.cleaned_data['quantity']
             category = form.cleaned_data['category']
 
-            # Записываем в файл
             with open('templates/tablica/products.txt', 'a', encoding='utf-8') as f:
                 f.write(f"\n{name};{price};{quantity};{category}")
 
-            context = {
-                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., {category}',
-                'page_title' : 'Успех'
-            }
-
-            return render(request, 'success.html', context)
+            return render(request, 'success.html', {
+                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., {category}'
+            })
     else:
         form = ProductForm()
+        form.fields['category'].choices = category_choices
 
-    context = {
-        'form' : form,
-        'page_title' : 'Добавить товар'
-    }
+    return render(request, 'add_product.html', {'form': form})
 
-    return render(request, 'add_product.html', context)
+
+def add_movement(request):
+    # Считываем данные из файлов
+    products = read_file('products.txt')
+    stores_data = read_file('stores.txt')
+    workers_data = read_file('workers.txt')
+
+    # Создаем choices
+    product_choices = [(p[0], p[0]) for p in products] if products else []
+    store_choices = [(s[0], s[0]) for s in stores_data] if stores_data else []
+    worker_choices = [(w[0], w[0]) for w in workers_data] if workers_data else []
+
+    if request.method == 'POST':
+        form = MovementForm(request.POST)
+        form.fields['product'].choices = product_choices
+        form.fields['stores'].choices = store_choices
+        form.fields['worker'].choices = worker_choices
+
+        if form.is_valid():
+            product = form.cleaned_data['product']
+            stores = form.cleaned_data['stores']
+            quantity = form.cleaned_data['quantity']
+            worker = form.cleaned_data['worker']
+            date = form.cleaned_data['date']
+
+            with open('templates/tablica/movements.csv', 'a', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([product, stores, quantity, date, worker])
+
+            return render(request, 'success.html', {
+                'message': f'Товар "{product}" перемещен в: {stores} (количество: {quantity}, кладовщик: {worker})'
+            })
+    else:
+        form = MovementForm()
+        form.fields['product'].choices = product_choices
+        form.fields['stores'].choices = store_choices
+        form.fields['worker'].choices = worker_choices
+
+    return render(request, 'add_movement.html', {'form': form})
+
+def view_products(request):
+    products = read_file('products.txt')
+    return render(request, 'view_products.html', {
+        'products': products,
+        'page_title': 'Все товары'
+    })
