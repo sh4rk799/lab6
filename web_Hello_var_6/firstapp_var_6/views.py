@@ -156,43 +156,72 @@ def add_product(request):
 
 
 def add_movement(request):
-    # Считываем данные из файлов
-    products = read_file('products.txt')
-    stores_data = read_file('stores.txt')
-    workers_data = read_file('workers.txt')
+    try:
+        # Считываем данные из файлов
+        products = read_file('products.txt')
+        stores_data = read_file('stores.txt')
+        workers_data = read_file('workers.txt')
 
-    # Создаем choices
-    product_choices = [(p[0], p[0]) for p in products] if products else []
-    store_choices = [(s[0], s[0]) for s in stores_data] if stores_data else []
-    worker_choices = [(w[0], w[0]) for w in workers_data] if workers_data else []
+        # Создаем choices
+        product_choices = [(p[0], p[0]) for p in products] if products else []
+        store_choices = [(s[0], s[0]) for s in stores_data] if stores_data else []
+        worker_choices = [(w[0], w[0]) for w in workers_data] if workers_data else []
 
-    if request.method == 'POST':
-        form = MovementForm(request.POST)
-        form.fields['product'].choices = product_choices
-        form.fields['stores'].choices = store_choices
-        form.fields['worker'].choices = worker_choices
+        if request.method == 'POST':
+            form = MovementForm(request.POST)
+            form.fields['product'].choices = product_choices
+            form.fields['stores'].choices = store_choices
+            form.fields['worker'].choices = worker_choices
 
-        if form.is_valid():
-            product = form.cleaned_data['product']
-            stores = form.cleaned_data['stores']
-            quantity = form.cleaned_data['quantity']
-            worker = form.cleaned_data['worker']
-            date = form.cleaned_data['date']
+            if form.is_valid():
+                product_name = form.cleaned_data['product']
+                stores = form.cleaned_data['stores']
+                quantity = form.cleaned_data['quantity']
+                worker = form.cleaned_data['worker']
+                date = form.cleaned_data['date']
 
-            with open('templates/tablica/movements.csv', 'a', encoding='utf-8', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([product, stores, quantity, date, worker])
+                # ОТЛАДКА: что в stores?
+                print(f"DEBUG: stores = {stores}, type = {type(stores)}")
 
-            return render(request, 'success.html', {
-                'message': f'Товар "{product}" перемещен в: {stores} (количество: {quantity}, кладовщик: {worker})'
-            })
-    else:
+                # ЕСЛИ stores - строка, превращаем в список
+                if isinstance(stores, str):
+                    stores = [stores]
+                    print(f"DEBUG: converted to list: {stores}")
+
+                # ПРОВЕРЯЕМ количество товара на складе
+                available_quantity = 0
+                for product in products:
+                    if product[0] == product_name:
+                        available_quantity = int(product[2])
+                        break
+
+                if quantity > available_quantity:
+                    form.add_error('quantity', f'Недостаточно товара на складе! Доступно: {available_quantity} шт.')
+                    return render(request, 'add_movement.html', {'form': form})
+
+                # Сохраняем в CSV
+                with open('templates/tablica/movements.csv', 'a', encoding='utf-8', newline='') as f:
+                    writer = csv.writer(f)
+                    for store in stores:
+                        writer.writerow([product_name, store, quantity, date, worker])
+                        print(f"DEBUG: wrote row for store: {store}")
+
+                return render(request, 'success.html', {
+                    'message': f'Товар "{product_name}" перемещен в: {", ".join(stores)} (количество: {quantity}/{available_quantity} шт., кладовщик: {worker})'
+                })
+            else:
+                return render(request, 'add_movement.html', {'form': form})
+        else:
+            form = MovementForm()
+            form.fields['product'].choices = product_choices
+            form.fields['stores'].choices = store_choices
+            form.fields['worker'].choices = worker_choices
+            return render(request, 'add_movement.html', {'form': form})
+
+    except Exception as e:
         form = MovementForm()
-        form.fields['product'].choices = product_choices
-        form.fields['stores'].choices = store_choices
-        form.fields['worker'].choices = worker_choices
-
-    return render(request, 'add_movement.html', {'form': form})
+        form.add_error(None, f'Ошибка: {str(e)}')
+        return render(request, 'add_movement.html', {'form': form})
 
 def view_products(request):
     products = read_file('products.txt')
