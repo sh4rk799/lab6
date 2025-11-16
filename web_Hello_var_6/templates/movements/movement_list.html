@@ -1,59 +1,51 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ page_title }}{% endblock %}
-
 {% block content %}
-    <h1>🚚 {{ page_title }}</h1>
+<div class="container mt-4">
+    <h1>Перемещения товаров</h1>
 
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'movement_create' %}" style="
-            background: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            display: inline-block;
-        ">➕ Добавить перемещение</a>
+    <div class="mb-3">
+        <a href="{% url 'firstapp_var_6:movement_create' %}" class="btn btn-primary">Добавить перемещение</a>
+        <a href="{% url 'firstapp_var_6:product_list' %}" class="btn btn-secondary">К товарам</a>
+        <a href="{% url 'firstapp_var_6:category_list' %}" class="btn btn-info">К категориям</a>
     </div>
 
-    <table>
-        <tr>
-            <th>Товар</th>
-            <th>Магазин</th>
-            <th>Количество</th>
-            <th>Дата</th>
-            <th>Кладовщик</th>
-            <th>Действия</th>
-        </tr>
-        {% for movement in movements %}
-        <tr>
-            <td>{{ movement.product.name }}</td>
-            <td>{{ movement.store }}</td>
-            <td>{{ movement.quantity }} шт.</td>
-            <td>{{ movement.date }}</td>
-            <td>{{ movement.worker }}</td>
-            <td>
-                <a href="{% url 'movement_update' movement.pk %}" style="
-                    background: #2196F3;
-                    color: white;
-                    padding: 5px 10px;
-                    text-decoration: none;
-                    border-radius: 3px;
-                    margin-right: 5px;
-                ">✏️</a>
-                <a href="{% url 'movement_delete' movement.pk %}" style="
-                    background: #f44336;
-                    color: white;
-                    padding: 5px 10px;
-                    text-decoration: none;
-                    border-radius: 3px;
-                ">🗑️</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6" style="text-align: center;">Нет перемещений</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Категории товара</th>
+                    <th>Магазин</th>
+                    <th>Количество</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td>{{ movement.product.name }}</td>
+                    <td>
+                        {% for pc in movement.product.productcategory_set.all %}
+                            <span class="badge bg-secondary">
+                                {{ pc.category.name }}
+                            </span>
+                        {% endfor %}
+                    </td>
+                    <td>{{ movement.store }}</td>
+                    <td>{{ movement.quantity }}</td>
+                    <td>{{ movement.date }}</td>
+                    <td>
+                        <a href="{% url 'firstapp_var_6:movement_update' movement.pk %}"
+                           class="btn btn-warning btn-sm">Редактировать</a>
+                        <a href="{% url 'firstapp_var_6:movement_delete' movement.pk %}"
+                           class="btn btn-danger btn-sm">Удалить</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

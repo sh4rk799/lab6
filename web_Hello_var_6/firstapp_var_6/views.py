@@ -1,9 +1,78 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product, Movement
-from .forms import ProductForm, MovementForm
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from .models import Product, Category, Movement, ProductCategory
+from .forms import ProductForm, CategoryForm, MovementForm  # Исправлен импорт
 
+# === CRUD для Категорий ===
 
-# Главная страница
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'category_list.html'  # Убрал warehouse/
+    context_object_name = 'categories'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Категории товаров'  # Использую ваш стиль
+        return context
+
+class CategoryCreateView(CreateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_form.html'
+    success_url = reverse_lazy('firstapp_var_6:category_list')  # Добавьте firstapp_var_6:
+
+class CategoryUpdateView(UpdateView):
+    model = Category
+    form_class = CategoryForm
+    template_name = 'category_form.html'
+    success_url = reverse_lazy('firstapp_var_6:category_list')  # И здесь
+
+class CategoryDeleteView(DeleteView):
+    model = Category
+    template_name = 'category_confirm_delete.html'
+    success_url = reverse_lazy('firstapp_var_6:category_list')  # И здесь
+
+# === Управление связями товаров и категорий ===
+
+def manage_product_categories(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        category_id = request.POST.get('category_id')
+
+        if category_id:
+            category = get_object_or_404(Category, id=category_id)
+            # Убрали логику is_primary
+            ProductCategory.objects.get_or_create(
+                product=product,
+                category=category
+            )
+
+        return redirect('firstapp_var_6:manage_product_categories', product_id=product_id)
+
+    product_categories = ProductCategory.objects.filter(product=product)
+    available_categories = Category.objects.exclude(
+        id__in=product_categories.values_list('category_id', flat=True)
+    )
+
+    return render(request, 'manage_product_categories.html', {
+        'product': product,
+        'product_categories': product_categories,
+        'available_categories': available_categories,
+    })
+
+def remove_product_category(request, product_id, category_id):
+    product_category = get_object_or_404(
+        ProductCategory,
+        product_id=product_id,
+        category_id=category_id
+    )
+    product_category.delete()
+    return redirect('firstapp_var_6:manage_product_categories', product_id=product_id)
+
+# === Ваши существующие функции (оставляем без изменений) ===
+
 def index(request):
     products = Product.objects.all()
     movements = Movement.objects.all()
@@ -16,8 +85,6 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
-
-# CRUD для товаров (Задание 2.2)
 def product_list(request):
     products = Product.objects.all()
     return render(request, 'products/product_list.html', {
@@ -25,13 +92,12 @@ def product_list(request):
         'page_title': 'Товары'
     })
 
-
 def product_create(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('product_list')
+            return redirect('firstapp_var_6:product_list')  # Добавьте firstapp_var_6:
     else:
         form = ProductForm()
 
@@ -41,7 +107,6 @@ def product_create(request):
         'action': 'create'
     })
 
-
 def product_update(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
@@ -49,7 +114,7 @@ def product_update(request, pk):
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
-            return redirect('product_list')
+            return redirect('firstapp_var_6:product_list')  # И здесь
     else:
         form = ProductForm(instance=product)
 
@@ -59,20 +124,17 @@ def product_update(request, pk):
         'action': 'update'
     })
 
-
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
     if request.method == 'POST':
         product.delete()
-        return redirect('product_list')
+        return redirect('firstapp_var_6:product_list')  # Добавьте firstapp_var_6:
 
     return render(request, 'products/product_confirm_delete.html', {
         'product': product
     })
 
-
-# CRUD для перемещений (Задание 2.1)
 def movement_list(request):
     movements = Movement.objects.all()
     return render(request, 'movements/movement_list.html', {
@@ -80,13 +142,12 @@ def movement_list(request):
         'page_title': 'Перемещения'
     })
 
-
 def movement_create(request):
     if request.method == 'POST':
         form = MovementForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('movement_list')
+            return redirect('firstapp_var_6:movement_list')
     else:
         form = MovementForm()
 
@@ -96,7 +157,6 @@ def movement_create(request):
         'action': 'create'
     })
 
-
 def movement_update(request, pk):
     movement = get_object_or_404(Movement, pk=pk)
 
@@ -104,7 +164,7 @@ def movement_update(request, pk):
         form = MovementForm(request.POST, instance=movement)
         if form.is_valid():
             form.save()
-            return redirect('movement_list')
+            return redirect('firstapp_var_6:movement_list')
     else:
         form = MovementForm(instance=movement)
 
@@ -114,30 +174,27 @@ def movement_update(request, pk):
         'action': 'update'
     })
 
-
 def movement_delete(request, pk):
     movement = get_object_or_404(Movement, pk=pk)
 
     if request.method == 'POST':
         movement.delete()
-        return redirect('movement_list')
+        return redirect('firstapp_var_6:movement_list')
 
     return render(request, 'movements/movement_confirm_delete.html', {
         'movement': movement
     })
 
-
-# Склад - показывает товары и перемещения из БД
 def warehouse(request):
     products = Product.objects.all()
     movements = Movement.objects.all()
 
     context = {
         'products': products,
-        'movements': movements[:5],  # Последние 5 перемещений
+        'movements': movements[:5],
         'page_title': 'Склад товаров',
         'total_products': products.count(),
         'total_movements': movements.count(),
-        'categories': list(set(products.values_list('category', flat=True))),
+        'categories': Category.objects.all(),
     }
     return render(request, 'warehouse.html', context)

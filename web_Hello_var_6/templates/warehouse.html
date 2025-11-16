@@ -9,7 +9,13 @@
         <h3>📊 Статистика:</h3>
         <p><strong>Количество товаров:</strong> {{ total_products }}</p>
         <p><strong>Всего перемещений:</strong> {{ total_movements }}</p>
-        <p><strong>Категории товаров:</strong> {{ categories|join:", " }}</p>
+        <p><strong>Категории товаров:</strong>
+            {% for category in categories %}
+                {{ category.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                Нет категорий
+            {% endfor %}
+        </p>
     </div>
 
     <h3>📋 Товары на складе:</h3>
@@ -18,7 +24,7 @@
             <th>Фото</th>
             <th>Товар</th>
             <th>Цена</th>
-            <th>Категория</th>
+            <th>Категории</th>  <!-- Изменили на Категории -->
         </tr>
         {% for product in products %}
         <tr>
@@ -33,7 +39,15 @@
             </td>
             <td>{{ product.name }}</td>
             <td>{{ product.price }} руб.</td>
-            <td>{{ product.category }}</td>
+            <td>
+                {% for pc in product.productcategory_set.all %}
+                    <span style="background: #007bff; color: white; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin: 1px;">
+                        {{ pc.category.name }}
+                    </span>
+                {% empty %}
+                    <span style="color: #999;">Нет категорий</span>
+                {% endfor %}
+            </td>
         </tr>
         {% empty %}
         <tr>
@@ -49,7 +63,6 @@
             <th>Магазин</th>
             <th>Количество</th>
             <th>Дата</th>
-            <th>Кладовщик</th>
         </tr>
         {% for movement in movements %}
         <tr>
@@ -57,12 +70,11 @@
             <td>{{ movement.store }}</td>
             <td>{{ movement.quantity }} шт.</td>
             <td>{{ movement.date }}</td>
-            <td>{{ movement.worker }}</td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="5" style="text-align: center;">Нет перемещений</td>
+            <td colspan="4" style="text-align: center;">Нет перемещений</td>
         </tr>
         {% endfor %}
     </table>
-{% endblock %}
+{% endblock %}```

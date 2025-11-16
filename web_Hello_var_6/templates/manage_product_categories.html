@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Управление категориями для: {{ product.name }}</h2>
+
+<h4>Текущие категории:</h4>
+<ul>
+    {% for pc in product_categories %}
+    <li>
+        {{ pc.category.name }}
+        {% if pc.is_primary %}(основная){% endif %}
+        - <a href="{% url 'firstapp_var_6:remove_product_category' product.id pc.category.id %}">Удалить</a>
+    </li>
+    {% empty %}
+    <li>Нет категорий</li>
+    {% endfor %}
+</ul>
+
+<h4>Добавить категорию:</h4>
+<form method="post">
+    {% csrf_token %}
+    <select name="category_id">
+        <option value="">Выберите категорию</option>
+        {% for category in available_categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="btn btn-primary">Добавить</button>
+</form>
+
+<a href="{% url 'firstapp_var_6:product_list' %}">← Назад к товарам</a>
+{% endblock %}

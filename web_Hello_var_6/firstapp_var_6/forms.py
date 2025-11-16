@@ -1,36 +1,30 @@
 from django import forms
-from .models import Product, Movement
+from .models import Product, Category, Movement, ProductCategory
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'price', 'category', 'photo']
-        widgets = {
-            'name': forms.TextInput(attrs={'placeholder': 'Название товара'}),
-            'price': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00'}),
-            'category': forms.TextInput(attrs={'placeholder': 'Категория товара'}),
-            'photo': forms.FileInput(attrs={'accept': 'image/*'}),
-        }
-        labels = {
-            'name': 'Название товара',
-            'price': 'Цена (руб.)',
-            'category': 'Категория',
-            'photo': 'Фото товара',
-        }
+        fields = ['name', 'price', 'photo']
+
 
 class MovementForm(forms.ModelForm):
     class Meta:
         model = Movement
-        fields = ['product', 'store', 'quantity', 'date', 'worker']
+        fields = ['product', 'store', 'quantity', 'date']  # Вернули date
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
-            'store': forms.TextInput(attrs={'placeholder': 'Название магазина'}),
-            'worker': forms.TextInput(attrs={'placeholder': 'ФИО кладовщика'}),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'product': forms.Select(attrs={'class': 'form-control'}),
+            'store': forms.TextInput(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
         }
         labels = {
             'product': 'Товар',
             'store': 'Магазин',
             'quantity': 'Количество',
             'date': 'Дата перемещения',
-            'worker': 'Кладовщик',
         }
