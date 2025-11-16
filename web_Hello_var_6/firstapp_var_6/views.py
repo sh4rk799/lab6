@@ -1,213 +1,143 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Product, Movement
 from .forms import ProductForm, MovementForm
-import csv
-
-def read_file(filename):
-    data = []
-    try:
-        with open(f'templates/tablica/{filename}', 'r', encoding='utf-8') as file:
-            for line in file:
-                if line.strip():
-                    data.append(line.strip().split(';'))
-    except:
-        pass
-    return data
 
 
-def read_csv_file():
-    data = []
-    try:
-        with open('templates/tablica/movements.csv', 'r', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                data.append(row)
-    except:
-        pass
-    return data
-
-
+# Главная страница
 def index(request):
-    products = read_file('products.txt')
-    movements = read_csv_file()
+    products = Product.objects.all()
+    movements = Movement.objects.all()
 
     context = {
         'page_title': 'Главная страница',
-        'total_products': len(products),
-        'total_movements': len(movements),
-        'last_movement': movements[-1] if movements else {'Товар': 'нет данных', 'Магазин': 'нет данных'}
+        'total_products': products.count(),
+        'total_movements': movements.count(),
+        'last_movement': movements.last() if movements.exists() else None
     }
     return render(request, 'index.html', context)
 
 
-def warehouse(request):
-    products = read_file('products.txt')
-    movements = read_csv_file()
-
-    simple_data = {
-        'total_count': len(products),
-        'warehouse_name': 'Основной склад',
-        'is_active': True,
-        'area': 500,
-        'total_movements': len(movements)
-    }
-
-    complex_data = {
-        'products_list': products,
-        'categories': list(set([p[3] for p in products])) if products else [],
-        'movements_list': movements,
-    }
-
-    context = {
-        'simple': simple_data,
-        'complex': complex_data,
-        'page_title': 'Склад товаров'
-    }
-    return render(request, 'warehouse.html', context)
+# CRUD для товаров (Задание 2.2)
+def product_list(request):
+    products = Product.objects.all()
+    return render(request, 'products/product_list.html', {
+        'products': products,
+        'page_title': 'Товары'
+    })
 
 
-def shops(request):
-    stores = read_file('stores.txt')
-    movements = read_csv_file()
-
-    store_stats = {}
-    for movement in movements:
-        store = movement['Магазин']
-        quantity = int(movement['Количество'])
-        if store in store_stats:
-            store_stats[store] += quantity
-        else:
-            store_stats[store] = quantity
-
-    context = {
-        'simple': {
-            'stores_count': len(stores),
-            'city': 'Москва'
-        },
-        'complex': {
-            'stores_list': stores,
-            'store_stats': store_stats,
-        },
-        'page_title': 'Магазины-получатели'
-    }
-    return render(request, 'shops.html', context)
-
-
-def movements(request):
-    movements_data = read_csv_file()
-
-    context = {
-        'movements_list': movements_data,
-        'page_title': 'Перемещения товаров',
-        'total_count': len(movements_data)
-    }
-    return render(request, 'movements.html', context)
-
-
-def workers(request):
-    workers_data = read_file('workers.txt')
-    movements = read_csv_file()
-
-    worker_stats = {}
-    for movement in movements:
-        worker = movement['Кладовщик']
-        quantity = int(movement['Количество'])
-        if worker in worker_stats:
-            worker_stats[worker] += quantity
-        else:
-            worker_stats[worker] = quantity
-
-    context = {
-        'workers_list': workers_data,
-        'worker_stats': worker_stats,
-        'page_title': 'Кладовщики'
-    }
-    return render(request, 'workers.html', context)
-
-
-def add_product(request):
+def product_create(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
-
+        form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            price = form.cleaned_data['price']
-            quantity = form.cleaned_data['quantity']
-            category = form.cleaned_data['category']  # Теперь получаем строку
-
-            # Записываем в файл
-            with open('templates/tablica/products.txt', 'a', encoding='utf-8') as f:
-                f.write(f"\n{name};{price};{quantity};{category}")
-
-            return render(request, 'success.html', {
-                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., категория: {category}'
-            })
+            form.save()
+            return redirect('product_list')
     else:
         form = ProductForm()
 
-    return render(request, 'add_product.html', {'form': form})
-
-
-def add_movement(request):
-    try:
-        # Считываем данные из файлов
-        products = read_file('products.txt')
-        stores_data = read_file('stores.txt')
-        workers_data = read_file('workers.txt')
-
-        # Создаем choices
-        product_choices = [(p[0], p[0]) for p in products] if products else []
-        store_choices = [(s[0], s[0]) for s in stores_data] if stores_data else []
-        worker_choices = [(w[0], w[0]) for w in workers_data] if workers_data else []
-
-        if request.method == 'POST':
-            form = MovementForm(request.POST)
-            form.fields['product'].choices = product_choices
-            form.fields['stores'].choices = store_choices
-            form.fields['worker'].choices = worker_choices
-
-            if form.is_valid():
-                product_name = form.cleaned_data['product']
-                store = form.cleaned_data['stores']  # Теперь это ОДИН магазин (строка)
-                quantity = form.cleaned_data['quantity']
-                worker = form.cleaned_data['worker']
-                date = form.cleaned_data['date']
-
-                # ПРОВЕРЯЕМ количество товара на складе
-                available_quantity = 0
-                for product in products:
-                    if product[0] == product_name:
-                        available_quantity = int(product[2])
-                        break
-
-                if quantity > available_quantity:
-                    form.add_error('quantity', f'Недостаточно товара на складе! Доступно: {available_quantity} шт.')
-                    return render(request, 'add_movement.html', {'form': form})
-
-                # Сохраняем в CSV (ТОЛЬКО ОДНУ ЗАПИСЬ)
-                with open('templates/tablica/movements.csv', 'a', encoding='utf-8', newline='') as f:
-                    writer = csv.writer(f)
-                    writer.writerow([product_name, store, quantity, date, worker])
-
-                return render(request, 'success.html', {
-                    'message': f'Товар "{product_name}" перемещен в: {store} (количество: {quantity}/{available_quantity} шт., кладовщик: {worker})'
-                })
-            else:
-                return render(request, 'add_movement.html', {'form': form})
-        else:
-            form = MovementForm()
-            form.fields['product'].choices = product_choices
-            form.fields['stores'].choices = store_choices
-            form.fields['worker'].choices = worker_choices
-            return render(request, 'add_movement.html', {'form': form})
-
-    except Exception as e:
-        form = MovementForm()
-        form.add_error(None, f'Ошибка: {str(e)}')
-        return render(request, 'add_movement.html', {'form': form})
-
-def view_products(request):
-    products = read_file('products.txt')
-    return render(request, 'view_products.html', {
-        'products': products,
-        'page_title': 'Все товары'
+    return render(request, 'products/product_form.html', {
+        'form': form,
+        'page_title': 'Добавить товар',
+        'action': 'create'
     })
+
+
+def product_update(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'products/product_form.html', {
+        'form': form,
+        'page_title': 'Редактировать товар',
+        'action': 'update'
+    })
+
+
+def product_delete(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == 'POST':
+        product.delete()
+        return redirect('product_list')
+
+    return render(request, 'products/product_confirm_delete.html', {
+        'product': product
+    })
+
+
+# CRUD для перемещений (Задание 2.1)
+def movement_list(request):
+    movements = Movement.objects.all()
+    return render(request, 'movements/movement_list.html', {
+        'movements': movements,
+        'page_title': 'Перемещения'
+    })
+
+
+def movement_create(request):
+    if request.method == 'POST':
+        form = MovementForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('movement_list')
+    else:
+        form = MovementForm()
+
+    return render(request, 'movements/movement_form.html', {
+        'form': form,
+        'page_title': 'Добавить перемещение',
+        'action': 'create'
+    })
+
+
+def movement_update(request, pk):
+    movement = get_object_or_404(Movement, pk=pk)
+
+    if request.method == 'POST':
+        form = MovementForm(request.POST, instance=movement)
+        if form.is_valid():
+            form.save()
+            return redirect('movement_list')
+    else:
+        form = MovementForm(instance=movement)
+
+    return render(request, 'movements/movement_form.html', {
+        'form': form,
+        'page_title': 'Редактировать перемещение',
+        'action': 'update'
+    })
+
+
+def movement_delete(request, pk):
+    movement = get_object_or_404(Movement, pk=pk)
+
+    if request.method == 'POST':
+        movement.delete()
+        return redirect('movement_list')
+
+    return render(request, 'movements/movement_confirm_delete.html', {
+        'movement': movement
+    })
+
+
+# Склад - показывает товары и перемещения из БД
+def warehouse(request):
+    products = Product.objects.all()
+    movements = Movement.objects.all()
+
+    context = {
+        'products': products,
+        'movements': movements[:5],  # Последние 5 перемещений
+        'page_title': 'Склад товаров',
+        'total_products': products.count(),
+        'total_movements': movements.count(),
+        'categories': list(set(products.values_list('category', flat=True))),
+    }
+    return render(request, 'warehouse.html', context)

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Удалить перемещение{% endblock %}
+
+{% block content %}
+    <h1>🗑️ Удалить перемещение</h1>
+
+    <div class="stats" style="background: #f8d7da;">
+        <h3>Вы уверены, что хотите удалить это перемещение?</h3>
+        <p><strong>Товар:</strong> {{ movement.product.name }}</p>
+        <p><strong>Магазин:</strong> {{ movement.store }}</p>
+        <p><strong>Количество:</strong> {{ movement.quantity }} шт.</p>
+        <p><strong>Дата:</strong> {{ movement.date }}</p>
+        <p><strong>Кладовщик:</strong> {{ movement.worker }}</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="
+            background: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        ">Да, удалить</button>
+        <a href="{% url 'movement_list' %}" style="
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+        ">Отмена</a>
+    </form>
+{% endblock %}

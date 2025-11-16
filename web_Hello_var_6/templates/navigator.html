@@ -1,11 +1,8 @@
 <nav>
     <ul>
         <li><a href="{% url 'index' %}">🏠 Главная</a></li>
-        <li><a href="{% url 'view_products' %}">📦 Товары (GET)</a></li>
+        <li><a href="{% url 'product_list' %}">📦 Товары (CRUD)</a></li>
+        <li><a href="{% url 'movement_list' %}">🚚 Перемещения (CRUD)</a></li>
         <li><a href="{% url 'warehouse' %}">📊 Склад</a></li>
-        <li><a href="{% url 'workers' %}">👥  Кладовщики</a></li>
-        <li><a href="{% url 'movements' %}">🚚 Перемещения</a></li>
-        <li><a href="{% url 'add_product' %}">➕ Простая форма</a></li>
-        <li><a href="{% url 'add_movement' %}">☑️ Форма со списками</a></li>
     </ul>
 </nav>

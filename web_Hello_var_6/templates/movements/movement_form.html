@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <h1>🚚 {{ page_title }}</h1>
+
+    {% if form.errors %}
+        <div class="stats" style="background: #f8d7da; border-color: #f5c6cb;">
+            <h3>❌ Ошибки:</h3>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ field }}: {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="stats">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div style="margin-bottom: 15px;">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: #666;">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <button type="submit" style="
+                background: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-right: 10px;
+            ">
+                {% if action == 'create' %}Создать{% else %}Сохранить{% endif %}
+            </button>
+            <a href="{% url 'movement_list' %}" style="
+                background: #6c757d;
+                color: white;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 4px;
+            ">
+                Отмена
+            </a>
+        </form>
+    </div>
+{% endblock %}

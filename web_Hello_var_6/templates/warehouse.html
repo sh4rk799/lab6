@@ -6,55 +6,62 @@
     <h1>📦 {{ page_title }}</h1>
 
     <div class="stats">
-        <h3>📊 Простые данные:</h3>
-        <p><strong>Количество товаров:</strong> {{ simple.total_count }}</p>
-        <p><strong>Название склада:</strong> {{ simple.warehouse_name }}</p>
-        <p><strong>Склад активен:</strong> {{ simple.is_active }}</p>
-        <p><strong>Площадь:</strong> {{ simple.area }} м²</p>
-        <p><strong>Всего перемещений:</strong> {{ simple.total_movements }}</p>
+        <h3>📊 Статистика:</h3>
+        <p><strong>Количество товаров:</strong> {{ total_products }}</p>
+        <p><strong>Всего перемещений:</strong> {{ total_movements }}</p>
+        <p><strong>Категории товаров:</strong> {{ categories|join:", " }}</p>
     </div>
 
-    <div class="stats">
-        <h3>📂 Категории товаров (список):</h3>
-        <ul>
-            {% for category in complex.categories %}
-            <li>{{ category }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <h3>📋 Товары на складе (таблица из TXT файла):</h3>
+    <h3>📋 Товары на складе:</h3>
     <table>
         <tr>
+            <th>Фото</th>
             <th>Товар</th>
             <th>Цена</th>
-            <th>Количество</th>
             <th>Категория</th>
         </tr>
-        {% for product in complex.products_list %}
+        {% for product in products %}
         <tr>
-            <td>{{ product.0 }}</td>
-            <td>{{ product.1 }} руб.</td>
-            <td>{{ product.2 }} шт.</td>
-            <td>{{ product.3 }}</td>
+            <td>
+                {% if product.photo %}
+                    <img src="{{ product.photo.url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                {% else %}
+                    <div style="width: 50px; height: 50px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                        📷
+                    </div>
+                {% endif %}
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }} руб.</td>
+            <td>{{ product.category }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align: center;">Нет товаров</td>
         </tr>
         {% endfor %}
     </table>
 
-    <h3>🚚 Последние перемещения (данные из CSV):</h3>
+    <h3>🚚 Последние перемещения:</h3>
     <table>
         <tr>
             <th>Товар</th>
             <th>Магазин</th>
             <th>Количество</th>
             <th>Дата</th>
+            <th>Кладовщик</th>
         </tr>
-        {% for movement in complex.movements_list|slice:":5" %}
+        {% for movement in movements %}
         <tr>
-            <td>{{ movement.Товар }}</td>
-            <td>{{ movement.Магазин }}</td>
-            <td>{{ movement.Количество }} шт.</td>
-            <td>{{ movement.Дата }}</td>
+            <td>{{ movement.product.name }}</td>
+            <td>{{ movement.store }}</td>
+            <td>{{ movement.quantity }} шт.</td>
+            <td>{{ movement.date }}</td>
+            <td>{{ movement.worker }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center;">Нет перемещений</td>
         </tr>
         {% endfor %}
     </table>
