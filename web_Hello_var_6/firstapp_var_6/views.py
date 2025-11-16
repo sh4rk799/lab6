@@ -125,32 +125,24 @@ def workers(request):
 
 
 def add_product(request):
-    # Заполняем категории для формы
-    category_choices = [
-        ('Электроника', 'Электроника'),
-        ('Бытовая техника', 'Бытовая техника'),
-        ('Офисная техника', 'Офисная техника'),
-    ]
-
     if request.method == 'POST':
         form = ProductForm(request.POST)
-        form.fields['category'].choices = category_choices
 
         if form.is_valid():
             name = form.cleaned_data['name']
             price = form.cleaned_data['price']
             quantity = form.cleaned_data['quantity']
-            category = form.cleaned_data['category']
+            category = form.cleaned_data['category']  # Теперь получаем строку
 
+            # Записываем в файл
             with open('templates/tablica/products.txt', 'a', encoding='utf-8') as f:
                 f.write(f"\n{name};{price};{quantity};{category}")
 
             return render(request, 'success.html', {
-                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., {category}'
+                'message': f'Добавлен: {name} - {price} руб., {quantity} шт., категория: {category}'
             })
     else:
         form = ProductForm()
-        form.fields['category'].choices = category_choices
 
     return render(request, 'add_product.html', {'form': form})
 
@@ -175,18 +167,10 @@ def add_movement(request):
 
             if form.is_valid():
                 product_name = form.cleaned_data['product']
-                stores = form.cleaned_data['stores']
+                store = form.cleaned_data['stores']  # Теперь это ОДИН магазин (строка)
                 quantity = form.cleaned_data['quantity']
                 worker = form.cleaned_data['worker']
                 date = form.cleaned_data['date']
-
-                # ОТЛАДКА: что в stores?
-                print(f"DEBUG: stores = {stores}, type = {type(stores)}")
-
-                # ЕСЛИ stores - строка, превращаем в список
-                if isinstance(stores, str):
-                    stores = [stores]
-                    print(f"DEBUG: converted to list: {stores}")
 
                 # ПРОВЕРЯЕМ количество товара на складе
                 available_quantity = 0
@@ -199,15 +183,13 @@ def add_movement(request):
                     form.add_error('quantity', f'Недостаточно товара на складе! Доступно: {available_quantity} шт.')
                     return render(request, 'add_movement.html', {'form': form})
 
-                # Сохраняем в CSV
+                # Сохраняем в CSV (ТОЛЬКО ОДНУ ЗАПИСЬ)
                 with open('templates/tablica/movements.csv', 'a', encoding='utf-8', newline='') as f:
                     writer = csv.writer(f)
-                    for store in stores:
-                        writer.writerow([product_name, store, quantity, date, worker])
-                        print(f"DEBUG: wrote row for store: {store}")
+                    writer.writerow([product_name, store, quantity, date, worker])
 
                 return render(request, 'success.html', {
-                    'message': f'Товар "{product_name}" перемещен в: {", ".join(stores)} (количество: {quantity}/{available_quantity} шт., кладовщик: {worker})'
+                    'message': f'Товар "{product_name}" перемещен в: {store} (количество: {quantity}/{available_quantity} шт., кладовщик: {worker})'
                 })
             else:
                 return render(request, 'add_movement.html', {'form': form})

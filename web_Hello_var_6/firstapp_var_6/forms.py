@@ -1,19 +1,26 @@
 from django import forms
 
 class ProductForm(forms.Form):
-    name = forms.CharField(label='Название товара')
+    name = forms.CharField(
+        label='Название товара',
+        widget=forms.TextInput(attrs={'placeholder': 'Введите название товара'})
+    )
     price = forms.DecimalField(
         label='Цена',
-        max_digits=10,  # Максимум 10 цифр всего
-        decimal_places=2,  # 2 знака после запятой
-        min_value=0.01,  # Минимальная цена
-        widget=forms.NumberInput(attrs={'step': '0.01'})  # Шаг 0.01 в браузере
+        max_digits=10,
+        decimal_places=2,
+        min_value=0.01,
+        widget=forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00'})
     )
-    quantity = forms.IntegerField(label='Количество', min_value=1)
-    category = forms.ChoiceField(
+    quantity = forms.IntegerField(
+        label='Количество',
+        min_value=1,
+        widget=forms.NumberInput(attrs={'placeholder': '1'})
+    )
+    category = forms.CharField(  # ИЗМЕНИЛИ НА CharField
         label='Категория',
-        choices=[],
-        widget=forms.Select
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Введите категорию товара'})
     )
 
 class MovementForm(forms.Form):
@@ -22,10 +29,10 @@ class MovementForm(forms.Form):
         choices=[],
         widget=forms.Select
     )
-    stores = forms.ChoiceField(
-        label='Выберите магазины',
+    stores = forms.ChoiceField(  # ОСТАВЛЯЕМ ChoiceField
+        label='Выберите магазин',  # Изменили на единственное число
         choices=[],
-        widget=forms.RadioSelect
+        widget=forms.RadioSelect  # ОСТАВЛЯЕМ RadioSelect
     )
     quantity = forms.IntegerField(
         label='Количество для перемещения',

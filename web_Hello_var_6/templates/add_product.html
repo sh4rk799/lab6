@@ -5,6 +5,17 @@
 {% block content %}
     <h1>📦 Добавить товар</h1>
 
+    {% if form.errors %}
+        <div class="stats" style="background: #f8d7da; border-color: #f5c6cb;">
+            <h3>❌ Ошибки:</h3>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <p>{{ field }}: {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <div class="stats">
         <form method="post">
             {% csrf_token %}
@@ -12,21 +23,33 @@
             <div style="margin-bottom: 15px;">
                 <label>{{ form.name.label }}</label>
                 {{ form.name }}
+                {% if form.name.help_text %}
+                <small style="color: #666;">{{ form.name.help_text }}</small>
+                {% endif %}
             </div>
 
             <div style="margin-bottom: 15px;">
                 <label>{{ form.price.label }}</label>
                 {{ form.price }}
+                {% if form.price.help_text %}
+                <small style="color: #666;">{{ form.price.help_text }}</small>
+                {% endif %}
             </div>
 
             <div style="margin-bottom: 15px;">
                 <label>{{ form.quantity.label }}</label>
                 {{ form.quantity }}
+                {% if form.quantity.help_text %}
+                <small style="color: #666;">{{ form.quantity.help_text }}</small>
+                {% endif %}
             </div>
 
             <div style="margin-bottom: 15px;">
                 <label>{{ form.category.label }}</label>
                 {{ form.category }}
+                <small style="color: #666; display: block;">
+                    💡 Примеры: Электроника, Бытовая техника, Офисная техника, Мебель, Одежда и т.д.
+                </small>
             </div>
             
             <button type="submit" style="
