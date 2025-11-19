@@ -15,16 +15,14 @@ urlpatterns = [
     path('products/<int:pk>/delete/', views.product_delete, name='product_delete'),
 
     # Категории (классы)
-    path('categories/', views.CategoryListView.as_view(), name='category_list'),
-    path('categories/create/', views.CategoryCreateView.as_view(), name='category_create'),
-    path('categories/<int:pk>/update/', views.CategoryUpdateView.as_view(), name='category_update'),
-    path('categories/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='category_delete'),
+    path('categories/', views.category_list, name='category_list'),
+    path('categories/create/', views.category_create, name='category_create'),
+    path('categories/<int:pk>/update/', views.category_update, name='category_update'),
+    path('categories/<int:pk>/delete/', views.category_delete, name='category_delete'),
 
     # Связи товаров и категорий
-    path('products/<int:product_id>/categories/',
-         views.manage_product_categories, name='manage_product_categories'),
-    path('products/<int:product_id>/categories/<int:category_id>/remove/',
-         views.remove_product_category, name='remove_product_category'),
+    path('products/<int:product_id>/categories/', views.manage_product_categories, name='manage_product_categories'),
+    path('products/<int:product_id>/categories/<int:category_id>/remove/', views.remove_product_category, name='remove_product_category'),
 
     # Перемещения
     path('movements/', views.movement_list, name='movement_list'),

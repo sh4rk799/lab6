@@ -1,5 +1,3 @@
-# models.py - ОБНОВЛЕННАЯ ВЕРСИЯ с учетом существующих данных
-
 from django.db import models
 
 class Category(models.Model):
@@ -18,10 +16,6 @@ class Product(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название товара')
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
 
-    # СОХРАНЯЕМ старое поле для обратной совместимости во время миграции
-    category_old = models.CharField(max_length=100, verbose_name='Категория (старая)', blank=True)
-
-    # НОВОЕ поле для связи многие-ко-многим
     categories = models.ManyToManyField(
         Category,
         through='ProductCategory',
@@ -42,7 +36,7 @@ class Product(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return f"{self.name} ({self.price} руб.)"
+        return f"{self.name}"
 
 
 class ProductCategory(models.Model):
@@ -58,12 +52,12 @@ class ProductCategory(models.Model):
     def __str__(self):
         return f"{self.product.name} - {self.category.name}"
 
-# Модель Movement остается НЕИЗМЕННОЙ
+
 class Movement(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
     store = models.CharField(max_length=100, verbose_name='Магазин')
     quantity = models.IntegerField(verbose_name='Количество')
-    date = models.DateField(verbose_name='Дата перемещения')  # Убрали auto_now_add=True
+    date = models.DateField(verbose_name='Дата перемещения')
 
     class Meta:
         verbose_name = 'Перемещение'

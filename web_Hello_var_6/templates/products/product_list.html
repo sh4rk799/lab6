@@ -33,10 +33,8 @@
                     {% endfor %}
                 </td>
                 <td>
-                    <!-- Существующие кнопки -->
                     <a href="{% url 'firstapp_var_6:product_update' product.pk %}" class="btn btn-warning btn-sm">Редактировать</a>
                     <a href="{% url 'firstapp_var_6:product_delete' product.pk %}" class="btn btn-danger btn-sm">Удалить</a>
-                    <!-- НОВАЯ КНОПКА для управления категориями -->
                     <a href="{% url 'firstapp_var_6:manage_product_categories' product.pk %}" class="btn btn-info btn-sm">Категории</a>
                 </td>
             </tr>

@@ -15,7 +15,7 @@ class ProductForm(forms.ModelForm):
 class MovementForm(forms.ModelForm):
     class Meta:
         model = Movement
-        fields = ['product', 'store', 'quantity', 'date']  # Вернули date
+        fields = ['product', 'store', 'quantity', 'date']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'product': forms.Select(attrs={'class': 'form-control'}),
