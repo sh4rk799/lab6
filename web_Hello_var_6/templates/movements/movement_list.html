@@ -7,7 +7,6 @@
     <div class="mb-3">
         <a href="{% url 'firstapp_var_6:movement_create' %}" class="btn btn-primary">Добавить перемещение</a>
         <a href="{% url 'firstapp_var_6:product_list' %}" class="btn btn-secondary">К товарам</a>
-        <a href="{% url 'firstapp_var_6:category_list' %}" class="btn btn-info">К категориям</a>
     </div>
 
     <div class="table-responsive">
@@ -15,7 +14,6 @@
             <thead>
                 <tr>
                     <th>Товар</th>
-                    <th>Категории товара</th>
                     <th>Магазин</th>
                     <th>Количество</th>
                     <th>Дата</th>
@@ -26,13 +24,6 @@
                 {% for movement in movements %}
                 <tr>
                     <td>{{ movement.product.name }}</td>
-                    <td>
-                        {% for pc in movement.product.productcategory_set.all %}
-                            <span class="badge bg-secondary">
-                                {{ pc.category.name }}
-                            </span>
-                        {% endfor %}
-                    </td>
                     <td>{{ movement.store }}</td>
                     <td>{{ movement.quantity }}</td>
                     <td>{{ movement.date }}</td>
