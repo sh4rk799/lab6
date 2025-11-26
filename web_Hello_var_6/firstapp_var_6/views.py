@@ -5,12 +5,12 @@ from .forms import ProductForm, MovementForm #CategoryForm,
 
 def index(request):
     products = Product.objects.all()
-    # movements = Movement.objects.all()
+    movements = Movement.objects.all()
 
     context = {
         'page_title': 'Главная страница',
         'total_products': products.count(),
-        # 'total_movements': movements.count(),
+        'total_movements': movements.count(),
         # 'last_movement': movements.last() if movements.exists() else None
     }
     return render(request, 'index.html', context)

@@ -11,10 +11,7 @@ class MovementForm(forms.ModelForm):
         model = Movement
         fields = ['product', 'store', 'quantity', 'date']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'product': forms.Select(attrs={'class': 'form-control'}),
-            'store': forms.TextInput(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'type': 'date'}),
         }
         labels = {
             'product': 'Товар',
