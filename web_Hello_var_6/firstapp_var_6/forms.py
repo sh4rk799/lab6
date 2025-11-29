@@ -1,10 +1,10 @@
 from django import forms
-from .models import Product, Movement #, Category, , ProductCategory
+from .models import Product, Movement, Category, ProductCategory
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'price', 'category', 'photo']
+        fields = ['name', 'price', 'photo']
 
 class MovementForm(forms.ModelForm):
     class Meta:
@@ -20,8 +20,7 @@ class MovementForm(forms.ModelForm):
             'date': 'Дата перемещения',
         }
 
-#
-# class CategoryForm(forms.ModelForm):
-#     class Meta:
-#         model = Category
-#         fields = ['name']
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']

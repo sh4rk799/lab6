@@ -6,22 +6,22 @@
     
     <div class="mb-3">
         <a href="{% url 'firstapp_var_6:product_create' %}" class="btn btn-primary">Добавить товар</a>
+        <a href="{% url 'firstapp_var_6:category_list' %}" class="btn btn-info">Управление категориями</a>
     </div>
 
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Фото</th>  <!-- НОВАЯ КОЛОНКА -->
+                <th>Фото</th>
                 <th>Название</th>
                 <th>Цена</th>
-                <th>Категория</th>
+                <th>Категории</th>  <!-- Изменил на множественное число -->
                 <th>Действия</th>
             </tr>
         </thead>
         <tbody>
             {% for product in products %}
             <tr>
-                <!-- КОЛОНКА С ФОТО -->
                 <td>
                     {% if product.photo %}
                         <img src="{{ product.photo.url }}"
@@ -37,15 +37,18 @@
                 <td>{{ product.name }}</td>
                 <td>{{ product.price }} руб.</td>
                 <td>
-                    {% if product.category %}
-                        <span class="badge bg-secondary">{{ product.category }}</span>
-                    {% else %}
-                        <span class="text-muted">Нет категории</span>
-                    {% endif %}
+                    {% for pc in product.productcategory_set.all %}
+                        {{ pc.category.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        <span class="text-muted">Нет категорий</span>
+                    {% endfor %}
                 </td>
                 <td>
-                    <a href="{% url 'firstapp_var_6:product_update' product.pk %}" class="btn btn-warning btn-sm">Редактировать</a>
-                    <a href="{% url 'firstapp_var_6:product_delete' product.pk %}" class="btn btn-danger btn-sm">Удалить</a>
+                    <div class="btn-group-vertical btn-group-sm">
+                        <a href="{% url 'firstapp_var_6:product_update' product.pk %}" class="btn btn-warning mb-1">Редакт.</a>
+                        <a href="{% url 'firstapp_var_6:product_delete' product.pk %}" class="btn btn-danger mb-1">Удалить</a>
+                        <a href="{% url 'firstapp_var_6:manage_product_categories' product.id %}" class="btn btn-outline-primary">Категории</a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
