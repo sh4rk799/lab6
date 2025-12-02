@@ -4,8 +4,6 @@ class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название категории')
 
     class Meta:
-        verbose_name = 'Категория'
-        verbose_name_plural = 'Категории'
         ordering = ['name']
 
     def __str__(self):
@@ -30,8 +28,6 @@ class ProductCategory(models.Model):
     assigned_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата назначения')
 
     class Meta:
-        verbose_name = 'Категория товара'
-        verbose_name_plural = 'Категории товаров'
         unique_together = ['product', 'category']
 
     def __str__(self):

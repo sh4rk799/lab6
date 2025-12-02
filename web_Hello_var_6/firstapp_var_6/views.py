@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy
 from .models import Product, Movement, Category, ProductCategory
 from .forms import ProductForm, MovementForm, CategoryForm
 
@@ -11,7 +10,6 @@ def index(request):
         'page_title': 'Главная страница',
         'total_products': products.count(),
         'total_movements': movements.count(),
-        # 'last_movement': movements.last() if movements.exists() else None
     }
     return render(request, 'index.html', context)
 
@@ -203,19 +201,6 @@ def remove_product_category(request, product_id, category_id):
     product_category.delete()
     return redirect('firstapp_var_6:manage_product_categories', product_id=product_id)
 
-# def warehouse(request):
-#     products = Product.objects.all()
-#     movements = Movement.objects.all()
-#
-#     context = {
-#         'products': products,
-#         'movements': movements[:5],
-#         'page_title': 'Склад товаров',
-#         'total_products': products.count(),
-#         'total_movements': movements.count(),
-#         'categories': Category.objects.all(),
-#     }
-#     return render(request, 'warehouse.html', context)
 
 
 
